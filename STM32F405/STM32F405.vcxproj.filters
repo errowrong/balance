@@ -773,5 +773,13 @@
     <ClInclude Include="Inc\user\SolveTrajectory.h">
       <Filter>Header files\Inc\user</Filter>
     </ClInclude>
+    <ClInclude Include="Inc\user\arm_math.h">
+      <Filter>Header files\Inc\user</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="Src\libarm_cortexM4lf_math.a">
+      <Filter>Source files\Src\user</Filter>
+    </Library>
   </ItemGroup>
 </Project>
