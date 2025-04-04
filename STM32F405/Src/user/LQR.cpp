@@ -69,14 +69,14 @@ void LQR::ModeUpdate(DMMOTOR* jointMotor[][2], LKMOTOR* chassisMotor[], IMU* _im
 	dphi4[right] = -jointMotor[right][front]->GetSpeed();
 
 	float dx[2];
-	dx[left] = chassisMotor[left]->GetAngularVelocity() * wheelRadii;
+	dx[left] = (-1.f) * chassisMotor[left]->GetAngularVelocity() * wheelRadii;
 	dx[right] = chassisMotor[right]->GetAngularVelocity() * wheelRadii;
 
 	float dphi = imuChassis.GetAngularVelocityPitch() * PI / 180.f;
 
 	static float dxM[2]{};
-	dxM[left] = chassisMotor[left]->GetAngularVelocity();
-	dxM[right] = chassisMotor[right]->GetAngularVelocity();//右轮旋向有问题
+	dxM[left] = (-1.f) * chassisMotor[left]->GetAngularVelocity();
+	dxM[right] = chassisMotor[right]->GetAngularVelocity();
 
 	static float angularVelocity[2]{}, wheelVelocity[2]{};
 
@@ -93,6 +93,8 @@ void LQR::ModeUpdate(DMMOTOR* jointMotor[][2], LKMOTOR* chassisMotor[], IMU* _im
 		joint[right].legposition.dL0 * sinf(joint[right].present.theta[right]);
 
 	bodyVelocity = (wheelVelocity[left] + wheelVelocity[right]) / 2;
+	//bodyVelocity = AccelerationSolution(imu.roll, imu.pitch, imu.yaw);
+	
 	//if (initialFlag)
 	//{
 	//	//initialFlag = true;
@@ -148,15 +150,15 @@ void LQR::ModeUpdate(DMMOTOR* jointMotor[][2], LKMOTOR* chassisMotor[], IMU* _im
 	else
 	{
 		
-		jointMotor[left][front]->SetTorque(-joint[left].aimTorque.T4);
+		/*jointMotor[left][front]->SetTorque(-joint[left].aimTorque.T4);
 		jointMotor[left][behind]->SetTorque(-joint[left].aimTorque.T1);
 		jointMotor[right][front]->SetTorque(joint[right].aimTorque.T4);
-		jointMotor[right][behind]->SetTorque(joint[right].aimTorque.T1);
+		jointMotor[right][behind]->SetTorque(joint[right].aimTorque.T1);*/
 	}
 
 
 	chassisMotor[left]->SetTorque(-joint[left].aimTorque.driverTorque.T_drive);
-	chassisMotor[right]->SetTorque(-joint[right].aimTorque.driverTorque.T_drive);
+	chassisMotor[right]->SetTorque(joint[right].aimTorque.driverTorque.T_drive);
 
 	if (legFlag)
 	{
@@ -371,7 +373,7 @@ LQR::TORQUE LQR::JOINT::ForwardKinetic(float thetaError, float dthetaError, floa
 
 		aimTorque.driverTorque.T_drive = -lqr.Torque_Calcute(thetaError, dthetaError, xError, dxError, \
 			phiError, dphiError, FUCTION_MODE::chassisM);
-		aimTorque.driverTorque.T_drive += aimTorque.driverTorque.turnT_drive;
+		//aimTorque.driverTorque.T_drive += aimTorque.driverTorque.turnT_drive;
 
 	//}	
 

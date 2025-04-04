@@ -57,7 +57,7 @@ float LKMOTOR::GetTorque()
 
 float LKMOTOR::GetAngularVelocity()
 {
-	return speed_real_;//返回值为rad/s,为啥空载是1s一圈，但是负载不是啊。
+	return speed_real_;//返回值为rad/s。
 }
 
 float LKMOTOR::GetPosition()
