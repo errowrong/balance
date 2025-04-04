@@ -1,6 +1,6 @@
 #include "./Inc/user/kalmanFilter.h"
 #include <string.h>
-
+#include "arm_math.h"
 /**
  ******************************************************************************
  * @file    kalman filter.c
@@ -164,7 +164,7 @@ void KALMANFILTER::TaskInit(std::vector<float> _P, std::vector<float> _F, std::v
 
     Kalman_Filter_Init(&kf, xhatSize, uSize, zSize);
 
-   memcpy(kf.P_data, &_P[0], _P.size() * sizeFloat);
+    memcpy(kf.P_data, &_P[0], _P.size() * sizeFloat);
     memcpy(kf.F_data, &_F[0], _F.size() * sizeFloat);
     memcpy(kf.Q_data, &_Q[0], _Q.size() * sizeFloat);
     memcpy(kf.R_data, &_R[0], _R.size() * sizeFloat);

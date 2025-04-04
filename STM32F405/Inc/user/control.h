@@ -36,6 +36,7 @@ public:
 		float moveSpeed{}, turnTorque{},movex{};
 
 		void PowerUpdate();
+		void SpeedEstInit();
 
 	};
 	struct PANTILE
@@ -88,10 +89,10 @@ public:
 	void Init(std::vector<DJIMOTOR*> DIJmotor, std::vector<LKMOTOR*> LKmotor, std::vector<DMMOTOR*> DMmotor);
 
 	void Update();
-
+	CHASSIS chassis;
 private:
 
-	CHASSIS chassis;
+	
 	PANTILE pantile;
 	SHOOTER shooter;
 

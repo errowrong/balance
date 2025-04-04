@@ -21,16 +21,16 @@ DMMOTOR& DMMOTOR::StateDecode(uint8_t odata[][8])
 	switch (position)
 	{
 	case L_F:
-		angle[now] = pos + 2.6;
+		angle[now] = pos + 2.6+1.14;
 		break;
 	case L_B:
-		angle[now] = pos + 2.5;
+		angle[now] = pos + 2.5-1.07;
 		break;
 	case R_F:
-		angle[now] = -pos - 0.57;
+		angle[now] = -pos - 0.50;
 		break;
 	case R_B:
-		angle[now] = -pos + 2.52;
+		angle[now] = -pos + 2.50;
 		break;
 	default:
 		break;

@@ -15,14 +15,14 @@ LQR::LQR(float K11, float K12, float K13, float K14, float K15, float K16,
 	joint[left].aim.L0 = para.initialL0;
 	joint[right].aim.L0 = para.initialL0;
 
-	std::vector<float> P{ 100, 0,
-					0,100 };
+	std::vector<float> P{ 100000, 0,
+					0,100000 };
 	std::vector<float> F{ 1.f, TIME_STEP,
 				 0, 1.f, };
-	std::vector<float> Q { 100,0,
-							0,10 };
-	std::vector<float> R{ 100000, TIME_STEP * TIME_STEP,
-		TIME_STEP * TIME_STEP ,1};
+	std::vector<float> Q { 25,0,
+							0,0.01 };
+	std::vector<float> R{ 800, TIME_STEP * TIME_STEP,
+		TIME_STEP * TIME_STEP ,0.01};
 	std::vector<float> H{ 1, 0,
 						0,1	};
 	std::vector<float> Z{ 0.1, 0,
@@ -59,7 +59,7 @@ void LQR::ModeUpdate(DMMOTOR* jointMotor[][2], LKMOTOR* chassisMotor[], IMU* _im
 {
 	
 	UpdateSensor(jointMotor, *chassisMotor, _imuChassis);
-	AccelerationSolution(imu.roll, imu.pitch, imu.yaw);//离地检测
+	AccelerationSolution(imu.roll, imu.pitch, imu.yaw);  //离地检测
 
 	float dphi1[2], dphi4[2];
 
@@ -73,39 +73,23 @@ void LQR::ModeUpdate(DMMOTOR* jointMotor[][2], LKMOTOR* chassisMotor[], IMU* _im
 	dx[right] = chassisMotor[right]->GetAngularVelocity() * wheelRadii;
 
 	float dphi = imuChassis.GetAngularVelocityPitch() * PI / 180.f;
-
-	static float dxM[2]{};
-	dxM[left] = (-1.f) * chassisMotor[left]->GetAngularVelocity();
-	dxM[right] = chassisMotor[right]->GetAngularVelocity();
-
-	static float angularVelocity[2]{}, wheelVelocity[2]{};
-
-	angularVelocity[left] = dxM[left] + joint[left].legposition.dphi0 - imuChassis.GetAngularVelocityPitch() * PI / 180.f;
-	angularVelocity[right] = dxM[right] + joint[right].legposition.dphi0 - imuChassis.GetAngularVelocityPitch() * PI / 180.f;
-	//统一从机体左方向看，phi0和pitch方向相反
-
-	wheelVelocity[left] = angularVelocity[left] * wheelRadii +
-		joint[left].legposition.L0 * joint[left].present.dtheta * arm_cos_f32(joint[left].present.theta[now]) +
-		joint[left].legposition.dL0 * arm_sin_f32(joint[left].present.theta[now]);
-
-	wheelVelocity[right] = angularVelocity[right] * wheelRadii +
-		joint[right].legposition.L0 * joint[right].present.dtheta * arm_cos_f32(joint[right].present.theta[now]) +
-		joint[right].legposition.dL0 * arm_sin_f32(joint[right].present.theta[right]);
-
-	bodyVelocity = (wheelVelocity[left] + wheelVelocity[right]) / 2;
+	
+	SpeedCalc(); //机体速度解算
+	
 	//bodyVelocity = AccelerationSolution(imu.roll, imu.pitch, imu.yaw);
 	
 	//if (initialFlag)
 	//{
 	//	//initialFlag = true;
-	//	speedKalmanFilter.TaskUpdate();
-	//joint[left].UpdateState(imu.roll, imu.yaw, imu.pitch, dphi1[left], dphi4[left], bodyVelocityHat, dx[left], dphi);//速度融合
-	//joint[right].UpdateState(imu.roll, imu.yaw, imu.pitch, dphi1[right], dphi4[right], bodyVelocityHat, dx[right], dphi);
+	//speedKalmanFilter.TaskUpdate();
+	SpeedKalmanFilter();
+	joint[left].UpdateState(imu.roll, imu.yaw, imu.pitch, dphi1[left], dphi4[left], bodyVelocityHat, dx[left], dphi);//速度融合
+	joint[right].UpdateState(imu.roll, imu.yaw, imu.pitch, dphi1[right], dphi4[right], bodyVelocityHat, dx[right], dphi);
 	//}
 	//else
 	//{
-		joint[left].UpdateState(imu.roll, imu.yaw, imu.pitch, dphi1[left], dphi4[right], dx[left], dx[right], dphi);//非速度融合
-		joint[right].UpdateState(imu.roll, imu.yaw, imu.pitch, dphi1[right], dphi4[right], dx[right], dx[left], dphi);
+		//joint[left].UpdateState(imu.roll, imu.yaw, imu.pitch, dphi1[left], dphi4[right], dx[left], dx[right], dphi);//非速度融合
+		//joint[right].UpdateState(imu.roll, imu.yaw, imu.pitch, dphi1[right], dphi4[right], dx[right], dx[left], dphi);
 	//}
 
 	float deltaTheta = joint[right].present.theta[now] - joint[left].present.theta[now];
@@ -158,7 +142,7 @@ void LQR::ModeUpdate(DMMOTOR* jointMotor[][2], LKMOTOR* chassisMotor[], IMU* _im
 
 
 	chassisMotor[left]->SetTorque(-joint[left].aimTorque.driverTorque.T_drive);
-	chassisMotor[right]->SetTorque(joint[right].aimTorque.driverTorque.T_drive);
+	chassisMotor[right]->SetTorque(joint[right].aimTorque.driverTorque.T_drive);  //负负
 
 	if (legFlag)
 	{
@@ -166,6 +150,29 @@ void LQR::ModeUpdate(DMMOTOR* jointMotor[][2], LKMOTOR* chassisMotor[], IMU* _im
 		isOffGround = true;
 	}
 	mode[last] = mode[now];
+}
+
+void LQR::SpeedCalc()
+{
+	static float dxM[2]{};
+	dxM[left] = (-1.f) * ctrl.chassis.chassisMotor[left]->GetAngularVelocity();
+	dxM[right] = ctrl.chassis.chassisMotor[right]->GetAngularVelocity();
+
+	static float angularVelocity[2]{}, wheelVelocity[2]{};
+
+	angularVelocity[left] = dxM[left] + joint[left].legposition.dphi0 - imuChassis.GetAngularVelocityPitch() * PI / 180.f;  //imuChassis.GetAngularVelocityPitch() * PI / 180.f这一部分需要改一下。
+	angularVelocity[right] = dxM[right] + joint[right].legposition.dphi0 - imuChassis.GetAngularVelocityPitch() * PI / 180.f;
+	//统一从机体左方向看，phi0和pitch方向相反
+
+	wheelVelocity[left] = angularVelocity[left] * wheelRadii +
+		joint[left].legposition.L0 * joint[left].present.dtheta * arm_cos_f32(joint[left].present.theta[now]) +
+		joint[left].legposition.dL0 * arm_sin_f32(joint[left].present.theta[now]);
+
+	wheelVelocity[right] = angularVelocity[right] * wheelRadii +
+		joint[right].legposition.L0 * joint[right].present.dtheta * arm_cos_f32(joint[right].present.theta[now]) +
+		joint[right].legposition.dL0 * arm_sin_f32(joint[right].present.theta[right]);
+
+	bodyVelocity = (wheelVelocity[left] + wheelVelocity[right]) / 2;
 }
 
 void LQR::JOINT::Unforce()
@@ -260,8 +267,8 @@ void LQR::JOINT::UpdateAim(float speed, float setL, float aimYaw, float aimPitch
 
 	float gain;
 	gain = 0.25 * error.roll;// -lqr.rollPid.kd * imuChassis.GetAngularVelocityRoll() * PI / 180.f;
-	if (!leftOrRight)
-	{
+	/*if (!leftOrRight)
+	{*/
 		aimTorque.driverTorque.turnT_drive = yawPid.kp * error.yaw -
 			yawPid.kd * imuChassis.GetAngularVelocityYaw() * PI / 180.f;
 		aimTorque.rollTorque = -lqr.rollPid.kp * error.roll +
@@ -269,17 +276,17 @@ void LQR::JOINT::UpdateAim(float speed, float setL, float aimYaw, float aimPitch
 
 		//aim.L0 = Ramp(setL + gain, aim.L0, temp);
 		aim.L0 = setL + 0.25 * error.roll;
-	}
+	/*}
 	else
 	{
-		aimTorque.driverTorque.turnT_drive = -yawPid.kp * error.yaw +
+		aimTorque.driverTorque.turnT_drive = yawPid.kp * error.yaw -
 			yawPid.kd * imuChassis.GetAngularVelocityYaw() * PI / 180.f;
 		aimTorque.rollTorque = lqr.rollPid.kp * error.roll -
 			lqr.rollPid.kd * imuChassis.GetAngularVelocityRoll() * PI / 180.f;
 
 		aim.L0 = setL - 0.25 * error.roll;
 
-	}
+	}*/
 
 	aimTorque.driverTorque.turnT_drive = Limit(aimTorque.driverTorque.turnT_drive, 5.f, -5.f);
 

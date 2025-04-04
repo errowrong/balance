@@ -696,6 +696,9 @@
     <ClCompile Include="user_lib.cpp">
       <Filter>Source files\Src\user</Filter>
     </ClCompile>
+    <ClCompile Include="ins.cpp">
+      <Filter>Source files\Src\user</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Inc\basic\can.h">
@@ -780,6 +783,9 @@
       <Filter>Header files\Inc\user</Filter>
     </ClInclude>
     <ClInclude Include="user_lib.h">
+      <Filter>Header files\Inc\user</Filter>
+    </ClInclude>
+    <ClInclude Include="ins.h">
       <Filter>Header files\Inc\user</Filter>
     </ClInclude>
   </ItemGroup>

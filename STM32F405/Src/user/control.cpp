@@ -395,3 +395,29 @@ void CONTROL::IsFire(bool _isFire)
 	shooter.isFire = _isFire;
 }
 
+void CONTROL::CHASSIS::SpeedEstInit() {
+	//// 使用kf同时估计速度和加速度
+	//Kalman_Filter_Init(&kf, 2, 0, 2);
+
+	//// 状态转移矩阵F，用于预测下一步的状态
+	//float F[4] = { 1, 0.001, 0, 1 };
+
+	//// 过程噪声协方差矩阵Q，反映模型的不确定性
+	//float Q[4] = { VEL_PROCESS_NOISE, 0, 0, ACC_MEASURE_NOISE };
+
+	//// 测量噪声协方差矩阵R，反映测量值的不确定性
+	//float R[4] = { VEL_MEASURE_NOISE, 0, 0, ACC_MEASURE_NOISE };
+
+	//// 估计误差协方差矩阵P，初始化为较大值，表示初始估计的不确定性较大
+	//float P[4] = { 100000, 0, 0, 100000 };
+
+	//// 观测矩阵H，用于将状态向量转换为观测值
+	//float H[4] = { 1, 0, 0, 1 };
+
+	//// 将上述矩阵复制到卡尔曼滤波器结构体中
+	//memcpy(kf.F_data, F, sizeof(F));
+	//memcpy(kf.Q_data, Q, sizeof(Q));
+	//memcpy(kf.R_data, R, sizeof(R));
+	//memcpy(kf.P_data, P, sizeof(P));
+	//memcpy(kf.H_data, H, sizeof(H));
+}

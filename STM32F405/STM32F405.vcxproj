@@ -47,7 +47,7 @@
       <PreprocessorDefinitions>DEBUG=1;__VFP_FP__=1;%(ClCompile.PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalLinkerInputs>D:/em_projects/RM25_banlance_infantry/balance/STM32F405/libarm_cortexM4lf_math.a;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
+      <AdditionalLinkerInputs>E:/robot_code/errowrong/balance/STM32F405/libarm_cortexM4lf_math.a;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
       <LibrarySearchDirectories>;%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
       <AdditionalLibraryNames>;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
       <LinkerScript />
@@ -57,6 +57,7 @@
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
   <ItemGroup>
+    <ClCompile Include="ins.cpp" />
     <ClCompile Include="Src\basic\can.cpp" />
     <ClCompile Include="Src\basic\gpio.cpp" />
     <ClCompile Include="Src\basic\tim.cpp" />
@@ -81,6 +82,7 @@
     <ClCompile Include="STM32F405.cpp" />
     <ClCompile Include="system_stm32f4xx.c" />
     <ClCompile Include="user_lib.cpp" />
+    <ClInclude Include="ins.h" />
     <ClInclude Include="user_lib.h" />
     <None Include="stm32.props" />
     <ClCompile Include="$(BSP_ROOT)\STM32F4xxxx\StartupFiles\startup_stm32f405xx.c" />

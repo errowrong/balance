@@ -123,7 +123,7 @@ public:
 		bool leftOrRight = false;
 		bool offGround = false;//当支持力小于某个值时，认为离地s
 		bool xFlag = false;
-
+		
 		void Unforce();//失力模式
 		void UpdateAim(float speed, float setL, float aimYaw, float aimPitch);
 		void UpdateState(float roll, float yaw, float pitch, float m_dphi1, float m_dphi4, float m_dx, float mo_dx, float m_dphi);
@@ -155,7 +155,7 @@ public:
 
 	void ModeUpdate(DMMOTOR* jointMotor[][2], LKMOTOR* chassisMotor[], IMU* imuChassis, float* aimL0, float moveSpd, float aimYaw, float aimPitch);
 	void UpdateSensor(DMMOTOR* jointMotor[][2], LKMOTOR* chassisMotor, IMU* imuChassis);
-
+	void SpeedCalc();//机体速度解算
 	void SetMode(MODE setMode);
 	MODE GetMode();
 	float GetYaw();
