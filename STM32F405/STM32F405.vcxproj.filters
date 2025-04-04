@@ -99,9 +99,6 @@
     <ClCompile Include="$(BSP_ROOT)\FreeRTOS\Source\CMSIS_RTOS\cmsis_os.c">
       <Filter>Source files\Device-specific files\FreeRTOS</Filter>
     </ClCompile>
-    <ClCompile Include="$(BSP_ROOT)\FreeRTOS\Source\portable\GCC\ARM_CM3\port.c">
-      <Filter>Source files\Device-specific files\FreeRTOS</Filter>
-    </ClCompile>
     <ClCompile Include="$(BSP_ROOT)\FreeRTOS\Source\portable\MemMang\heap_4.c">
       <Filter>Source files\Device-specific files\FreeRTOS</Filter>
     </ClCompile>
@@ -349,9 +346,6 @@
       <Filter>Header files\Device-specific files\FreeRTOS</Filter>
     </ClInclude>
     <ClInclude Include="$(BSP_ROOT)\FreeRTOS\Source\include\timers.h">
-      <Filter>Header files\Device-specific files\FreeRTOS</Filter>
-    </ClInclude>
-    <ClInclude Include="$(BSP_ROOT)\FreeRTOS\Source\portable\GCC\ARM_CM3\portmacro.h">
       <Filter>Header files\Device-specific files\FreeRTOS</Filter>
     </ClInclude>
     <ClInclude Include="$(BSP_ROOT)\STM32F4xxxx\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal.h">
@@ -693,6 +687,15 @@
     <ClCompile Include="Src\user\SolveTrajectory.cpp">
       <Filter>Source files\Src\user</Filter>
     </ClCompile>
+    <ClCompile Include="$(BSP_ROOT)\FreeRTOS\Source\portable\GCC\ARM_CM4F\port.c">
+      <Filter>Source files\Device-specific files\FreeRTOS</Filter>
+    </ClCompile>
+    <ClInclude Include="$(BSP_ROOT)\FreeRTOS\Source\portable\GCC\ARM_CM4F\portmacro.h">
+      <Filter>Header files\Device-specific files\FreeRTOS</Filter>
+    </ClInclude>
+    <ClCompile Include="user_lib.cpp">
+      <Filter>Source files\Src\user</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Inc\basic\can.h">
@@ -776,10 +779,16 @@
     <ClInclude Include="Inc\user\arm_math.h">
       <Filter>Header files\Inc\user</Filter>
     </ClInclude>
+    <ClInclude Include="user_lib.h">
+      <Filter>Header files\Inc\user</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Library Include="Src\libarm_cortexM4lf_math.a">
       <Filter>Source files\Src\user</Filter>
+    </Library>
+    <Library Include="libarm_cortexM4lf_math.a">
+      <Filter>Source files</Filter>
     </Library>
   </ItemGroup>
 </Project>

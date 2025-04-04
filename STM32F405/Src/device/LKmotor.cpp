@@ -35,6 +35,7 @@ LKMOTOR& LKMOTOR::LKmotorDecode(uint8_t idata[][8])
 	angle[last] = angle[now];
 	angle[now] = (idata[id][7] << 8) | idata[id][6];
 	curSpeed = (idata[id][5] << 8) | idata[id][4];
+	speed_real_ = 0.15f * speed_real_ + 0.85f * curSpeed * PI / 180.f;
 	current = (idata[id][3] << 8) | idata[id][2];//转换为实际电流
 	deltaAngle = GetDelta(angle[now] ,angle[last], 32768);
 
@@ -56,7 +57,7 @@ float LKMOTOR::GetTorque()
 
 float LKMOTOR::GetAngularVelocity()
 {
-	return curSpeed * PI / (32768.f * TIME_STEP);//返回值为编码器差分值
+	return speed_real_;//返回值为rad/s,为啥空载是1s一圈，但是负载不是啊。
 }
 
 float LKMOTOR::GetPosition()
@@ -76,7 +77,9 @@ float LKMOTOR::SetTorque(float settorque)
 
 int16_t LKMOTOR::T2C(float setTorque)
 {
-	return (setTorque * 370 - 14 * setTorque * setTorque);
+	//return (setTorque * 370 - 14 * setTorque * setTorque);
+	return  setTorque / 0.00512f;
+	
 }
 
 

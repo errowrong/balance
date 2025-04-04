@@ -520,14 +520,14 @@ bool LQR::JOINT::OffGroundDection()
 
 float LQR::AccelerationSolution(float roll, float pitch, float yaw)
 {
-	ACCELEROMETER weight, tempAccelerometer;//pitch 与 roll 互换,pitch取负号
+	//pitch 与 roll 互换,pitch取负号
 	//weight.x = sinf(pitch);
 	//weight.y = cosf(pitch) * sinf(roll);
 	//weight.z = cosf(pitch) * cosf(roll);
 
-	weight.x = sinf(roll);
-	weight.y = cosf(roll) * sinf(pitch);
-	weight.z = cosf(roll) * cosf(pitch);
+	weight.x = arm_sin_f32(roll);
+	weight.y = arm_cos_f32(roll) * arm_sin_f32(pitch);
+	weight.z = arm_cos_f32(roll) * arm_cos_f32(pitch);
 
 	tempAccelerometer.x = (accelerometer.x + weight.x) *g;
 	tempAccelerometer.y = (accelerometer.y - weight.y) *g;
@@ -537,7 +537,7 @@ float LQR::AccelerationSolution(float roll, float pitch, float yaw)
 		tempAccelerometer.x * weight.x - \
 		tempAccelerometer.y * weight.y);
 
-	return bodyAccelerometer;
+	return bodyAccelerometer; //过滤掉重力加速后的数据，滤波不好,静态时数值波动。
 }
 
 void LQR::UpdateSensor(DMMOTOR* jointMotor[][2], LKMOTOR* chassisMotor, IMU* imuChassis)

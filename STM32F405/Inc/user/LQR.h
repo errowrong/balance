@@ -174,6 +174,7 @@ private:
 	float k11, k12, k13, k14, k15, k16, k21, k22, k23, k24, k25, k26;
 
 	float bodyAccelerometer;
+	ACCELEROMETER weight, tempAccelerometer;
 	Kalman accelerometerFilter = { 1.f,10000.f };
 	LEGSTATE legState;
 	MODE mode[2];

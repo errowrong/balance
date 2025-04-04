@@ -6,10 +6,10 @@
 #include "./Inc/user/kalman.h"
 #include "./Inc/user/label.h"
 
-#define KT 0.23//转矩常数为0.23
+#define KT 0.32//转矩常数为0.32
 
-#define C_MIN -1800.f    //力矩
-#define C_MAX 1800.f
+#define C_MIN -1900.f    //IQcontrol的限幅
+#define C_MAX 1900.f
 #define LIMIT_MIN_MAX(x,min,max) (x) = (((x)<=(min))?(min):(((x)>=(max))?(max):(x)))
 
 #ifndef TEST_LKMOTOR
@@ -90,6 +90,7 @@ private:
 	/*int16_t torque{}, setTorque{};*/
 	float torque{}, setTorque{};
 	int16_t curSpeed{}, setSpeed{};
+	float speed_real_{};
 	int32_t angle[2];
 	int16_t deltaAngle, setAngle;
 	int16_t current{}, setCurrent;

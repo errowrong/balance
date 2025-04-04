@@ -10,7 +10,8 @@ void IMU::Init(UART* huart, USART_TypeDef* Instance, const uint32_t BaudRate, IM
 	UserUpdate = fun;
 	queueHandler = &huart->UartQueueHandler;
 }
-
+//pitch --> x 抬头为正
+//roll -->y 向下为正
 void IMU::Decode()
 {
 

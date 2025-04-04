@@ -44,10 +44,10 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|VisualGDB'">
     <ClCompile>
       <AdditionalIncludeDirectories>;%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>DEBUG=1;%(ClCompile.PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>DEBUG=1;__VFP_FP__=1;%(ClCompile.PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalLinkerInputs>E:/git_sourse/errowrong/balance/STM32F405/Src/libarm_cortexM4lf_math.a;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
+      <AdditionalLinkerInputs>E:/robot_code/errowrong/balance/STM32F405/libarm_cortexM4lf_math.a;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
       <LibrarySearchDirectories>;%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
       <AdditionalLibraryNames>;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
       <LinkerScript />
@@ -80,6 +80,8 @@
     <ClCompile Include="Src\user\taskslist.cpp" />
     <ClCompile Include="STM32F405.cpp" />
     <ClCompile Include="system_stm32f4xx.c" />
+    <ClCompile Include="user_lib.cpp" />
+    <ClInclude Include="user_lib.h" />
     <None Include="stm32.props" />
     <ClCompile Include="$(BSP_ROOT)\STM32F4xxxx\StartupFiles\startup_stm32f405xx.c" />
     <None Include="$(BSP_ROOT)\FreeRTOS\License\license.txt" />
@@ -92,7 +94,6 @@
     <ClCompile Include="$(BSP_ROOT)\FreeRTOS\Source\tasks.c" />
     <ClCompile Include="$(BSP_ROOT)\FreeRTOS\Source\timers.c" />
     <ClCompile Include="$(BSP_ROOT)\FreeRTOS\Source\CMSIS_RTOS\cmsis_os.c" />
-    <ClCompile Include="$(BSP_ROOT)\FreeRTOS\Source\portable\GCC\ARM_CM3\port.c" />
     <ClCompile Include="$(BSP_ROOT)\FreeRTOS\Source\portable\MemMang\heap_4.c" />
     <ClCompile Include="$(BSP_ROOT)\STM32F4xxxx\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal.c" />
     <ClCompile Include="$(BSP_ROOT)\STM32F4xxxx\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_adc.c" />
@@ -203,7 +204,6 @@
     <ClInclude Include="$(BSP_ROOT)\FreeRTOS\Source\include\StackMacros.h" />
     <ClInclude Include="$(BSP_ROOT)\FreeRTOS\Source\include\task.h" />
     <ClInclude Include="$(BSP_ROOT)\FreeRTOS\Source\include\timers.h" />
-    <ClInclude Include="$(BSP_ROOT)\FreeRTOS\Source\portable\GCC\ARM_CM3\portmacro.h" />
     <ClInclude Include="$(BSP_ROOT)\STM32F4xxxx\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal.h" />
     <ClInclude Include="$(BSP_ROOT)\STM32F4xxxx\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_adc.h" />
     <ClInclude Include="$(BSP_ROOT)\STM32F4xxxx\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_adc_ex.h" />
@@ -295,8 +295,11 @@
     <None Include="STM32F405-Debug.vgdbsettings" />
     <None Include="STM32F405-Release.vgdbsettings" />
     <None Include="stm32.xml" />
+    <ClCompile Include="$(BSP_ROOT)\FreeRTOS\Source\portable\GCC\ARM_CM4F\port.c" />
+    <ClInclude Include="$(BSP_ROOT)\FreeRTOS\Source\portable\GCC\ARM_CM4F\portmacro.h" />
   </ItemGroup>
   <ItemGroup>
+    <Library Include="libarm_cortexM4lf_math.a" />
     <Library Include="Src\libarm_cortexM4lf_math.a" />
   </ItemGroup>
 </Project>
