@@ -59,7 +59,7 @@ void LQR::ModeUpdate(DMMOTOR* jointMotor[][2], LKMOTOR* chassisMotor[], IMU* _im
 {
 	
 	UpdateSensor(jointMotor, *chassisMotor, _imuChassis);
-	AccelerationSolution(imu.roll, imu.pitch, imu.yaw);
+	AccelerationSolution(imu.roll, imu.pitch, imu.yaw);//离地检测
 
 	float dphi1[2], dphi4[2];
 
@@ -85,12 +85,12 @@ void LQR::ModeUpdate(DMMOTOR* jointMotor[][2], LKMOTOR* chassisMotor[], IMU* _im
 	//统一从机体左方向看，phi0和pitch方向相反
 
 	wheelVelocity[left] = angularVelocity[left] * wheelRadii +
-		joint[left].legposition.L0 * joint[left].present.dtheta * cosf(joint[left].present.theta[now]) +
-		joint[left].legposition.dL0 * sinf(joint[left].present.theta[now]);
+		joint[left].legposition.L0 * joint[left].present.dtheta * arm_cos_f32(joint[left].present.theta[now]) +
+		joint[left].legposition.dL0 * arm_sin_f32(joint[left].present.theta[now]);
 
 	wheelVelocity[right] = angularVelocity[right] * wheelRadii +
-		joint[right].legposition.L0 * joint[right].present.dtheta * cosf(joint[right].present.theta[now]) +
-		joint[right].legposition.dL0 * sinf(joint[right].present.theta[right]);
+		joint[right].legposition.L0 * joint[right].present.dtheta * arm_cos_f32(joint[right].present.theta[now]) +
+		joint[right].legposition.dL0 * arm_sin_f32(joint[right].present.theta[right]);
 
 	bodyVelocity = (wheelVelocity[left] + wheelVelocity[right]) / 2;
 	//bodyVelocity = AccelerationSolution(imu.roll, imu.pitch, imu.yaw);
