@@ -47,7 +47,7 @@
       <PreprocessorDefinitions>DEBUG=1;__VFP_FP__=1;%(ClCompile.PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalLinkerInputs>E:/robot_code/errowrong/balance/STM32F405/libarm_cortexM4lf_math.a;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
+      <AdditionalLinkerInputs>D:/em_projects/RM25_banlance_infantry/balance/STM32F405/libarm_cortexM4lf_math.a;%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
       <LibrarySearchDirectories>;%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
       <AdditionalLibraryNames>;%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
       <LinkerScript />
