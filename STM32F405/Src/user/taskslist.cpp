@@ -99,6 +99,12 @@ void CanTransimtTask(void* pvParameters)
 {
 	while (true)
 	{
+		/*can1.Transmit(0x281, can1.LKmotor_temp_data);
+		DM_can1_motor[1].DMmotorTransmit(DM_can1_motor[1].ID);
+		DM_can1_motor[2].DMmotorTransmit(DM_can1_motor[2].ID);
+		DM_can1_motor[3].DMmotorTransmit(DM_can1_motor[3].ID);
+		DM_can1_motor[3].DMmotorTransmit(DM_can1_motor[3].ID);
+		LK_can1_motor[0].LKmotorTransmit();*/
 		if (task.counter > 1000)
 		{
 			switch (task.counter % 5)

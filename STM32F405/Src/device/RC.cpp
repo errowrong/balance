@@ -92,6 +92,7 @@ void RC::OnRC()
 		OnPC();
 		return;*/
 		lqr.SetMode(LQR::MODE::UNFORCE);
+		lqr.SHUTDOWN();
 	}
 	else if (rc.s[0] == DOWN && rc.s[1] == DOWN)//Ê§Á¦Ä£Ê½
 	{

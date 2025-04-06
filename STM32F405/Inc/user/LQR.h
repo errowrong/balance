@@ -128,6 +128,7 @@ public:
 		void UpdateAim(float speed, float setL, float aimYaw, float aimPitch);
 		void UpdateState(float roll, float yaw, float pitch, float m_dphi1, float m_dphi4, float m_dx, float mo_dx, float m_dphi);
 		void UpdateTorque(bool offFround);
+		
 		void LegSolution(float phi1, float phi4, float dphi1, float dphi4);//五连杆正运动学解算
 		TORQUE ForwardKinetic(float thetaError, float dthetaError, float xError, float dxError, float phiError, float dphiError, bool offGround);
 		TORQUE InverseKinetic();
@@ -162,7 +163,7 @@ public:
 
 	float AccelerationSolution(float roll, float pitch, float yaw);
 	void Jump();
-
+	void SHUTDOWN();
 	float Torque_Calcute(float theta, float dtheta, float x, float dx, float phi, float dphi, FUCTION_MODE funcition);
 
 	JOINT joint[2];
@@ -183,9 +184,9 @@ private:
 
 	PID thetaPid = { 10.f,0.f,20.f };
 	bool legFlag = false;
-	float kp = 600;
-	float kd = 50;
-	float m = 2;
+	float kp = 200;
+	float kd = 30;
+	float m = 3;
 
 	
 };

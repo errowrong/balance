@@ -116,6 +116,13 @@ void LQR::ModeUpdate(DMMOTOR* jointMotor[][2], LKMOTOR* chassisMotor[], IMU* _im
 		joint[right].Unforce();
 		legFlag = false;
 		*aimL0 = para.initialL0;
+
+		chassisMotor[left]->SetTorque(0);
+		chassisMotor[right]->SetTorque(0);
+		jointMotor[left][front]->SetTorque(0.f);
+		jointMotor[left][behind]->SetTorque(0.f);
+		jointMotor[right][front]->SetTorque(0.f);
+		jointMotor[right][behind]->SetTorque(0.f);
 	}
 	if (mode[last] == UNFORCE && mode[now] == RESET)
 	{
@@ -134,15 +141,15 @@ void LQR::ModeUpdate(DMMOTOR* jointMotor[][2], LKMOTOR* chassisMotor[], IMU* _im
 	else
 	{
 		
-		/*jointMotor[left][front]->SetTorque(-joint[left].aimTorque.T4);
-		jointMotor[left][behind]->SetTorque(-joint[left].aimTorque.T1);
+		jointMotor[left][front]->SetTorque(joint[left].aimTorque.T4);
+		jointMotor[left][behind]->SetTorque(joint[left].aimTorque.T1);
 		jointMotor[right][front]->SetTorque(joint[right].aimTorque.T4);
-		jointMotor[right][behind]->SetTorque(joint[right].aimTorque.T1);*/
+		jointMotor[right][behind]->SetTorque(joint[right].aimTorque.T1);
 	}
 
 
 	chassisMotor[left]->SetTorque(-joint[left].aimTorque.driverTorque.T_drive);
-	chassisMotor[right]->SetTorque(joint[right].aimTorque.driverTorque.T_drive);  //¸º¸º
+	chassisMotor[right]->SetTorque(joint[right].aimTorque.driverTorque.T_drive);  
 
 	if (legFlag)
 	{
@@ -366,10 +373,19 @@ LQR::TORQUE LQR::JOINT::ForwardKinetic(float thetaError, float dthetaError, floa
 	//}
 	//else
 	//{
+	if (!leftOrRight)
+	{//left
+		aimTorque.legTorque.Tp = (lqr.senstive1 * lqr.Torque_Calcute(thetaError, dthetaError, xError, dxError, \
+			phiError, dphiError, FUCTION_MODE::jointM));
+	}
+	else
+	{//right
 		aimTorque.legTorque.Tp = -(lqr.senstive1 * lqr.Torque_Calcute(thetaError, dthetaError, xError, dxError, \
 			phiError, dphiError, FUCTION_MODE::jointM));
+	}
+		
 
-		////aimTorque.legTorque.Tp += aimTorque.legTorque.thetaTp;
+		//aimTorque.legTorque.Tp += aimTorque.legTorque.thetaTp;
 
 		leg_kp = lqr.kp;
 		leg_kd = lqr.kd;
@@ -609,4 +625,14 @@ LQR::MODE LQR::GetMode()
 float LQR::GetYaw()
 {
 	return (joint[left].present.yaw + joint[right].present.yaw) / 2;
+}
+
+void LQR::SHUTDOWN()
+{
+	ctrl.chassis.chassisMotor[left]->SetTorque(0);
+	ctrl.chassis.chassisMotor[right]->SetTorque(0);
+	ctrl.jointMotor[left][front]->SetTorque(0.f);
+	ctrl.jointMotor[left][behind]->SetTorque(0.f);
+	ctrl.jointMotor[right][front]->SetTorque(0.f);
+	ctrl.jointMotor[right][behind]->SetTorque(0.f);
 }
