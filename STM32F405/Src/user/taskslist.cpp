@@ -86,7 +86,7 @@ void MotorUpdateTask(void* pvParameters)
 			for (auto& motor : LK_can1_motor)motor.LKmotorDecode(can1.LKmotor_data).LKmotorOntimer(can1.LKmotor_temp_data);
 			//LK_can2_motor[0].LKmotorDecode(can2.LKmotor_data).LKmotorOntimer(can2.LKmotor_temp_data);
 			/*LK_can1_motor->LKmotor_Ontimer(can1.LKmotor_temp_data);*/
-			for (auto& motor : DM_can1_motor)motor.StateDecode(can1.DMmotor_data).DMmotorOntimer(motor, can1.DMmotor_temp_data[motor.ID - 0x01]);
+			for (auto& motor : DM_can1_motor)motor.StateDecode(can2.DMmotor_data).DMmotorOntimer(motor, can2.DMmotor_temp_data[motor.ID - 0x01]);
 			//for (auto& motor : LK_can1_motor)motor.LKmotor_Decode(can1.LKmotor_data);
 			//LK_can1_motor[0].Single_Motor_Decode(can1, LK_can1_motor[0].ID, LK_can1_motor[0].mode);
 			
@@ -99,13 +99,17 @@ void CanTransimtTask(void* pvParameters)
 {
 	while (true)
 	{
-		//can2
-		DM_can1_motor[1].DMmotorTransmit(DM_can1_motor[1].ID);
-		DM_can1_motor[2].DMmotorTransmit(DM_can1_motor[2].ID);
-		DM_can1_motor[3].DMmotorTransmit(DM_can1_motor[3].ID);
-		DM_can1_motor[3].DMmotorTransmit(DM_can1_motor[3].ID);
-		//can1
-		LK_can1_motor[0].LKmotorTransmit();
+		
+		if (task.counter > 1000) 
+		{
+			//can2
+			DM_can1_motor[0].DMmotorTransmit(DM_can1_motor[0].ID);
+			DM_can1_motor[1].DMmotorTransmit(DM_can1_motor[1].ID);
+			DM_can1_motor[2].DMmotorTransmit(DM_can1_motor[2].ID);
+			DM_can1_motor[3].DMmotorTransmit(DM_can1_motor[3].ID);
+			//can1
+			LK_can1_motor[0].LKmotorTransmit();
+		}
 
 		/*if (task.counter > 1000)
 		{
@@ -142,11 +146,11 @@ void DecodeTask(void* pvParameters)
 		if (task.counter % 5 == 0)
 		{
 			/*judgement.BuffData();
-			judgement.GetData();
+			judgement.GetData();*/
 			imuChassis.Decode();
-			imuPantile.Decode();
+			//imuPantile.Decode();
 			rc.Decode();
-			nuc.Decode();*/
+			//nuc.Decode();
 		}
 		
 		vTaskDelay(1);
@@ -172,15 +176,6 @@ void LedTask(void* pvParameters)
 {
 	while (true)
 	{
-		if (task.counter % 10 == 0)
-		{
-			judgement.SendData();
-		}
-		if (task.counter % 20)
-		{
-			supercap.Decode();
-			supercap.CAPControl(judgement.data.robot_status_t.chassis_power_limit, supercap.setstate);
-		}
 		
 		vTaskDelay(1);
 	}

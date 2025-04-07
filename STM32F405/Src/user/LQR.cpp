@@ -361,6 +361,10 @@ void LQR::JOINT::UpdateAim(float speed, float setL, float aimYaw, float aimPitch
 
 LQR::TORQUE LQR::JOINT::ForwardKinetic(float thetaError, float dthetaError, float xError, float dxError, float phiError, float dphiError, bool offFround)
 {
+	leg_kp = lqr.kp;
+	leg_kd = lqr.kd;
+	leg_m = lqr.m;
+
 	//if (offFround)
 	//{
 	//	present.x = aim.x;//ÀëµØÊ±£¬Ä¬ÈÏ²»ÀÛ¼ÓÎ»ÒÆÁ¿
@@ -377,26 +381,43 @@ LQR::TORQUE LQR::JOINT::ForwardKinetic(float thetaError, float dthetaError, floa
 	{//left
 		aimTorque.legTorque.Tp = (lqr.senstive1 * lqr.Torque_Calcute(thetaError, dthetaError, xError, dxError, \
 			phiError, dphiError, FUCTION_MODE::jointM));
+		//aimTorque.F = (-leg_kp * error.L0 + leg_kd * legposition.dL0 - leg_m * g * arm_cos_f32(present.theta[0]));
+		aimTorque.driverTorque.T_drive = -lqr.Torque_Calcute(thetaError, dthetaError, xError, dxError, \
+			phiError, dphiError, FUCTION_MODE::chassisM);
+
+		//aimTorque.F += aimTorque.rollTorque;//ºá¹ö½Ç²¹³¥
+		//aimTorque.legTorque.Tp += aimTorque.legTorque.thetaTp;//Åü²æ²¹³¥
+		//aimTorque.driverTorque.T_drive += aimTorque.driverTorque.turnT_drive;//×ªÏò²¹³¥
+
+		aimTorque.T1 = (T2F.J[0][0] * aimTorque.legTorque.Tp + T2F.J[0][1] * aimTorque.F);
+		aimTorque.T4 = (T2F.J[1][0] * aimTorque.legTorque.Tp + T2F.J[1][1] * aimTorque.F);
+		aimTorque.T1 = Limit(aimTorque.T1, T_MAX, T_MIN);
+		aimTorque.T4 = Limit(aimTorque.T4, T_MAX, T_MIN);
+		aimTorque.debugT1 = aimTorque.T1;
+		aimTorque.debugT4 = aimTorque.T4;
 	}
 	else
 	{//right
 		aimTorque.legTorque.Tp = -(lqr.senstive1 * lqr.Torque_Calcute(thetaError, dthetaError, xError, dxError, \
 			phiError, dphiError, FUCTION_MODE::jointM));
+		//aimTorque.F = (-leg_kp * error.L0 + leg_kd * legposition.dL0 - leg_m * g * arm_cos_f32(present.theta[0]));
+		aimTorque.driverTorque.T_drive = -lqr.Torque_Calcute(thetaError, dthetaError, xError, dxError, \
+			phiError, dphiError, FUCTION_MODE::chassisM);
+
+		//aimTorque.F += aimTorque.rollTorque;//ºá¹ö½Ç²¹³¥
+		//aimTorque.legTorque.Tp += aimTorque.legTorque.thetaTp;//Åü²æ²¹³¥
+		//aimTorque.driverTorque.T_drive += aimTorque.driverTorque.turnT_drive;//×ªÏò²¹³¥
+
+		aimTorque.T1 = (T2F.J[0][0] * aimTorque.legTorque.Tp + T2F.J[0][1] * aimTorque.F);
+		aimTorque.T4 = (T2F.J[1][0] * aimTorque.legTorque.Tp + T2F.J[1][1] * aimTorque.F);
+		aimTorque.T1 = Limit(aimTorque.T1, T_MAX, T_MIN);
+		aimTorque.T4 = Limit(aimTorque.T4, T_MAX, T_MIN);
+		aimTorque.debugT1 = aimTorque.T1;
+		aimTorque.debugT4 = aimTorque.T4;
 	}
 		
 
-		//aimTorque.legTorque.Tp += aimTorque.legTorque.thetaTp;
-
-		leg_kp = lqr.kp;
-		leg_kd = lqr.kd;
-		leg_m = lqr.m;
-
-		//aimTorque.F = (-leg_kp * error.L0 + leg_kd * legposition.dL0 - leg_m*g);
-		//aimTorque.F += aimTorque.rollTorque;
-
-		aimTorque.driverTorque.T_drive = -lqr.Torque_Calcute(thetaError, dthetaError, xError, dxError, \
-			phiError, dphiError, FUCTION_MODE::chassisM);
-		//aimTorque.driverTorque.T_drive += aimTorque.driverTorque.turnT_drive;
+		
 
 	//}	
 
@@ -407,14 +428,7 @@ LQR::TORQUE LQR::JOINT::ForwardKinetic(float thetaError, float dthetaError, floa
 
 	//aimTorque.F = Limit(aimTorque.F, 50, -50);
 
-	aimTorque.T1 = (T2F.J[0][0] * aimTorque.legTorque.Tp + T2F.J[0][1] * aimTorque.F);
-	aimTorque.T4 = (T2F.J[1][0] * aimTorque.legTorque.Tp + T2F.J[1][1] * aimTorque.F);
-
-	aimTorque.T1 = Limit(aimTorque.T1, T_MAX, T_MIN);
-	aimTorque.T4 = Limit(aimTorque.T4, T_MAX, T_MIN);
-
-	aimTorque.debugT1 = aimTorque.T1;
-	aimTorque.debugT4 = aimTorque.T4;
+	
 
 	return aimTorque;
 }
