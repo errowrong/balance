@@ -38,10 +38,8 @@ LKMOTOR& LKMOTOR::LKmotorDecode(uint8_t idata[][8])
 	speed_real_ = 0.15f * speed_real_ + 0.85f * curSpeed * PI / 180.f;
 	current = (idata[id][3] << 8) | idata[id][2];//转换为实际电流
 	deltaAngle = GetDelta(angle[now] ,angle[last], 32768);
-
 	torqueCurrent = current * 33 / 2048;
 	torque = torqueCurrent * KT;
-
 	setCurrent = setTorque / KT;
 
 }

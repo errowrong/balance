@@ -53,10 +53,10 @@ LKMOTOR LK_can1_motor[LK_CAN1_MOTOR_NUM] = {
 
 
 DMMOTOR DM_can1_motor[DM_CAN1_MOTOR_NUM] = {
-	DMMOTOR(DM_ID1,jointM,L_F,&can1),
-	DMMOTOR(DM_ID2,jointM,L_B,&can1),
-	DMMOTOR(DM_ID3,jointM,R_F,&can1),
-	DMMOTOR(DM_ID4,jointM,R_B,&can1),
+	DMMOTOR(DM_ID1,jointM,L_F,&can2),
+	DMMOTOR(DM_ID2,jointM,L_B,&can2),
+	DMMOTOR(DM_ID3,jointM,R_F,&can2),
+	DMMOTOR(DM_ID4,jointM,R_B,&can2),
 };
 
 

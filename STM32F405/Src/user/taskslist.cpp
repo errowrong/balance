@@ -82,7 +82,7 @@ void MotorUpdateTask(void* pvParameters)
 		//if (task.counter % 5 == 0)
 		//{
 			//for (auto& motor : DIJ_can1_motor)motor.DIJmotor_Ontimer(can1.DJImotor_data, can1.DJImotor_temp_data);
-			for (auto& motor : DJI_can2_motor)motor.DJImotor_Ontimer(can2.DJImotor_data, can2.DJImotor_temp_data);
+			//for (auto& motor : DJI_can2_motor)motor.DJImotor_Ontimer(can2.DJImotor_data, can2.DJImotor_temp_data);
 			for (auto& motor : LK_can1_motor)motor.LKmotorDecode(can1.LKmotor_data).LKmotorOntimer(can1.LKmotor_temp_data);
 			//LK_can2_motor[0].LKmotorDecode(can2.LKmotor_data).LKmotorOntimer(can2.LKmotor_temp_data);
 			/*LK_can1_motor->LKmotor_Ontimer(can1.LKmotor_temp_data);*/
@@ -99,44 +99,29 @@ void CanTransimtTask(void* pvParameters)
 {
 	while (true)
 	{
-		/*can1.Transmit(0x281, can1.LKmotor_temp_data);
+		//can2
 		DM_can1_motor[1].DMmotorTransmit(DM_can1_motor[1].ID);
 		DM_can1_motor[2].DMmotorTransmit(DM_can1_motor[2].ID);
 		DM_can1_motor[3].DMmotorTransmit(DM_can1_motor[3].ID);
 		DM_can1_motor[3].DMmotorTransmit(DM_can1_motor[3].ID);
-		LK_can1_motor[0].LKmotorTransmit();*/
-		if (task.counter > 1000)
+		//can1
+		LK_can1_motor[0].LKmotorTransmit();
+
+		/*if (task.counter > 1000)
 		{
 			switch (task.counter % 5)
 			{
-			case 0:
-
-				//can1.Transmit(0x200, can1.DJImotor_temp_data);
-
-				can2.Transmit(0x200, can2.DJImotor_temp_data);
-
-				can1.Transmit(0x281, can1.LKmotor_temp_data);
+			case 0:		
 				DM_can1_motor[0].DMmotorTransmit(DM_can1_motor[0].ID);
-
 				break;
 			case 1:
-				//can1.Transmit(0x1ff, can1.DJImotor_temp_data + 8);
-
-				can2.Transmit(0x1ff, can2.DJImotor_temp_data + 8);
-
 				DM_can1_motor[1].DMmotorTransmit(DM_can1_motor[1].ID);
-
 				break;
 			case 2:
-
 				DM_can1_motor[2].DMmotorTransmit(DM_can1_motor[2].ID);
-
 				break;
 			case 3:
-
 				DM_can1_motor[3].DMmotorTransmit(DM_can1_motor[3].ID);
-				//DM_can2_motor[0].DMmotorTransmit(DM_can2_motor[0].ID);
-
 				break;
 			case 4:
 				LK_can1_motor[0].LKmotorTransmit();
@@ -144,7 +129,7 @@ void CanTransimtTask(void* pvParameters)
 			default:
 				break;
 			}
-		}
+		}*/
 		task.counter++;
 		vTaskDelay(1);
 	}
@@ -156,12 +141,12 @@ void DecodeTask(void* pvParameters)
 	{
 		if (task.counter % 5 == 0)
 		{
-			judgement.BuffData();
+			/*judgement.BuffData();
 			judgement.GetData();
 			imuChassis.Decode();
 			imuPantile.Decode();
 			rc.Decode();
-			nuc.Decode();
+			nuc.Decode();*/
 		}
 		
 		vTaskDelay(1);
@@ -174,7 +159,7 @@ void ControlTask(void* pvParameters)
 	{
 		if (task.counter % 5 == 0)
 		{
-			nuc.Encode(imuPantile.GetAnglePitch(), imuPantile.GetAngleYaw(), imuPantile.GetAngleRoll());
+			//nuc.Encode(imuPantile.GetAnglePitch(), imuPantile.GetAngleYaw(), imuPantile.GetAngleRoll());
 			rc.Update();
 			ctrl.Update();
 		};
