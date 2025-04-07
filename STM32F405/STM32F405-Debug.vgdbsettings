@@ -106,10 +106,8 @@
     </AdditionalGDBSettings>
     <DebugMethod>
       <ID>com.sysprogs.arm.openocd</ID>
-      <InterfaceID>stlink-v2</InterfaceID>
-      <InterfaceSerialNumber>6&amp;1E8D7C22&amp;0&amp;4</InterfaceSerialNumber>
       <Configuration xsi:type="com.visualgdb.edp.openocd.settings">
-        <CommandLine>-f interface/stlink-v2.cfg -c "adapter speed 3000" -f target/stm32f4x.cfg -c init -c "reset init"</CommandLine>
+        <CommandLine>-f interface/cmsis-dap.cfg -c "adapter speed 3000" -f target/stm32f4x.cfg -c init -c "reset init"</CommandLine>
         <ExtraParameters>
           <Frequency xsi:nil="true" />
           <BoostedFrequency xsi:nil="true" />
