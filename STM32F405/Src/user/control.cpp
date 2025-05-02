@@ -362,10 +362,10 @@ void CONTROL::SetYaw(float deltaYaw  )
 		aimYaw += 2 * PI;
 	}
 
-	if (fabs(aimYaw - tempYaw) < PI)//¿¨Ç½ÐÞÕý
-	{
-		aimYaw = omega * aimYaw + (1 - omega) * tempYaw;
-	}
+	//if (fabs(aimYaw - tempYaw) < PI)//¿¨Ç½ÐÞÕý
+	//{
+	//	aimYaw = omega * aimYaw + (1 - omega) * tempYaw;
+	//}
 	
 }
 

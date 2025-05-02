@@ -147,11 +147,12 @@ void DecodeTask(void* pvParameters)
 		{
 			/*judgement.BuffData();
 			judgement.GetData();*/
-			imuChassis.Decode();
+			//imuChassis.Decode();
 			//imuPantile.Decode();
 			rc.Decode();
 			//nuc.Decode();
 		}
+		imuChassis.Decode();
 		
 		vTaskDelay(1);
 	}
@@ -167,6 +168,7 @@ void ControlTask(void* pvParameters)
 			rc.Update();
 			ctrl.Update();
 		};
+		ctrl.Update();
 
 		vTaskDelay(1);
 	}

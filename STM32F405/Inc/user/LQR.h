@@ -106,7 +106,9 @@ public:
 		float leg_kp = 0;
 		float leg_kd = 0;
 		float leg_m = 0;
-		
+		TickType_t tick_present;
+		TickType_t tick_last;
+		float Time;
 		pid yawPid = { 35.0f,0.f,4.f };// , rollPid = { 1.f,0.f,0.f };//Ðý×ªpid
 
 		PID jumpPid[5] = { { 0.f, 0.f, 0.f},{ 0.f, 0.f, 0.f},{ 0.f, 0.f, 0.f},{ 0.f, 0.f, 0.f},{ 0.f, 0.f, 0.f} };
@@ -184,9 +186,9 @@ private:
 
 	PID thetaPid = { 10.f,0.f,20.f };
 	bool legFlag = false;
-	float kp = 200;
-	float kd = 30;
-	float m = 3;
+	float kp = 50;
+	float kd = 10;
+	float m = 1.2;
 
 	
 };

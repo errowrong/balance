@@ -75,14 +75,14 @@ void LQR::ModeUpdate(DMMOTOR* jointMotor[][2], LKMOTOR* chassisMotor[], IMU* _im
 	float dphi = imuChassis.GetAngularVelocityPitch() * PI / 180.f;
 	
 	SpeedCalc(); //机体速度解算
-	
+	SpeedKalmanFilter();
 	//bodyVelocity = AccelerationSolution(imu.roll, imu.pitch, imu.yaw);
 	
 	//if (initialFlag)
 	//{
 	//	//initialFlag = true;
 	//speedKalmanFilter.TaskUpdate();
-	SpeedKalmanFilter();
+	
 	joint[left].UpdateState(imu.roll, imu.yaw, imu.pitch, dphi1[left], dphi4[left], bodyVelocityHat, dx[left], dphi);//速度融合
 	joint[right].UpdateState(imu.roll, imu.yaw, imu.pitch, dphi1[right], dphi4[right], bodyVelocityHat, dx[right], dphi);
 	//}
@@ -96,14 +96,14 @@ void LQR::ModeUpdate(DMMOTOR* jointMotor[][2], LKMOTOR* chassisMotor[], IMU* _im
 	float thetaTp = thetaPid.Position(deltaTheta);
 
 	joint[left].aimTorque.legTorque.thetaTp = -thetaTp;
-	joint[right].aimTorque.legTorque.thetaTp = thetaTp;
+	joint[right].aimTorque.legTorque.thetaTp = thetaTp;    //theta补偿
 
 	joint[left].UpdateAim(moveSpd, *aimL0, aimYaw, aimPitch);
 	joint[right].UpdateAim(moveSpd, *aimL0, aimYaw, aimPitch);
 
 	if (!legFlag && mode[now] != MODE::ENMERGE)
 	{
-		if (moveSpd != 0 && fabs(joint[left].present.phi) < 0.5 && fabs(joint[right].present.phi) < 0.5)
+		if (fabs(joint[left].present.phi) < 0.1 && fabs(joint[right].present.phi) < 0.1)
 			//当前行速度不为0且双腿倾角均小于阈值时解锁
 		{
 			legFlag = true;
@@ -141,10 +141,10 @@ void LQR::ModeUpdate(DMMOTOR* jointMotor[][2], LKMOTOR* chassisMotor[], IMU* _im
 	else
 	{
 		
-		jointMotor[left][front]->SetTorque(joint[left].aimTorque.T4);
+		/*jointMotor[left][front]->SetTorque(joint[left].aimTorque.T4);
 		jointMotor[left][behind]->SetTorque(joint[left].aimTorque.T1);
 		jointMotor[right][front]->SetTorque(joint[right].aimTorque.T4);
-		jointMotor[right][behind]->SetTorque(joint[right].aimTorque.T1);
+		jointMotor[right][behind]->SetTorque(joint[right].aimTorque.T1);*/
 	}
 
 
@@ -206,12 +206,15 @@ void LQR::JOINT::UpdateState(float roll, float yaw, float pitch, float m_dphi1, 
 {
 	present.roll = roll;
 	present.yaw = yaw;
-	
+
 	present.phi = pitch;
 
 	double dL0Last = legposition.dL0;
 	double dthetaLast = present.dtheta;
-
+	
+	tick_present = xTaskGetTickCount();
+	Time = (tick_present - tick_last) * portTICK_PERIOD_MS /1000.f;
+	
 	present.theta[last] = present.theta[now];
 
 	/*根据实物更新*/
@@ -226,7 +229,7 @@ void LQR::JOINT::UpdateState(float roll, float yaw, float pitch, float m_dphi1, 
 	present.dphi = m_dphi;
 
 	LegSolution(legposition.phi1, legposition.phi4, legposition.dphi1, legposition.dphi4);
-	legposition.d2L0 = ((legposition.dL0 - dL0Last) / (TIME_STEP));
+	legposition.d2L0 = ((legposition.dL0 - dL0Last) / (Time));
 
 	/*................................................*/
 	present.dx = (m_dx+mo_dx)/2;
@@ -235,15 +238,17 @@ void LQR::JOINT::UpdateState(float roll, float yaw, float pitch, float m_dphi1, 
 	if (lqr.mode[now] != SIDEWAYS || fabs(aim.yaw - present.yaw) < 0.04)
 	{
 		//present.timestep = (timer.counter - present.last_time) / 1000.0f;
-		present.x += present.dx * TIME_STEP;//速度融合计算
+		present.x += present.dx * Time;//速度融合计算
 	}
 	T2FJacobian(legposition.phi0, legposition.phi1, legposition.phi2, legposition.phi3, legposition.phi4);
 
-	present.theta[now] = -(PI / 2 - legposition.phi0 + present.phi);
+	present.theta[now] = -(PI / 2 - legposition.phi0 + present.phi); //
 	present.dtheta = legposition.dphi0 - m_dphi;
 
-	present.d2theta = (present.dtheta - dthetaLast) / (TIME_STEP);
-	present.last_time = timer.counter;
+	present.d2theta = (present.dtheta - dthetaLast) / (Time);
+	
+	tick_last = tick_present;
+
 }
 
 
@@ -343,8 +348,8 @@ void LQR::JOINT::UpdateAim(float speed, float setL, float aimYaw, float aimPitch
 	error.dx = Limit(error.dx, 2, -2);
 	//error.x = 0;
 	error.x = Limit(error.x, 1, -1);
-	//error.dphi = Limit(error.dphi, 1.5f, -1.5f);
-	//error.dtheta = Limit(error.dtheta, 1.5f, -1.5f);
+	error.dphi = Limit(error.dphi, 1.5f, -1.5f);
+	error.dtheta = Limit(error.dtheta, 1.5f, -1.5f);
 	InverseKinetic();
 	//if (lqr.mode[now] != MODE::SIDEWAYS && lqr.mode[now] != MODE::ENMERGE)
 	//{
@@ -381,7 +386,7 @@ LQR::TORQUE LQR::JOINT::ForwardKinetic(float thetaError, float dthetaError, floa
 	{//left
 		aimTorque.legTorque.Tp = (lqr.senstive1 * lqr.Torque_Calcute(thetaError, dthetaError, xError, dxError, \
 			phiError, dphiError, FUCTION_MODE::jointM));
-		//aimTorque.F = (-leg_kp * error.L0 + leg_kd * legposition.dL0 - leg_m * g * arm_cos_f32(present.theta[0]));
+		aimTorque.F = -(-leg_kp * error.L0 + leg_kd * legposition.dL0 - leg_m * g * arm_cos_f32(present.theta[0]));
 		aimTorque.driverTorque.T_drive = -lqr.Torque_Calcute(thetaError, dthetaError, xError, dxError, \
 			phiError, dphiError, FUCTION_MODE::chassisM);
 
@@ -400,7 +405,7 @@ LQR::TORQUE LQR::JOINT::ForwardKinetic(float thetaError, float dthetaError, floa
 	{//right
 		aimTorque.legTorque.Tp = -(lqr.senstive1 * lqr.Torque_Calcute(thetaError, dthetaError, xError, dxError, \
 			phiError, dphiError, FUCTION_MODE::jointM));
-		//aimTorque.F = (-leg_kp * error.L0 + leg_kd * legposition.dL0 - leg_m * g * arm_cos_f32(present.theta[0]));
+		aimTorque.F = (-leg_kp * error.L0 + leg_kd * legposition.dL0 - leg_m * g * arm_cos_f32(present.theta[0]));
 		aimTorque.driverTorque.T_drive = -lqr.Torque_Calcute(thetaError, dthetaError, xError, dxError, \
 			phiError, dphiError, FUCTION_MODE::chassisM);
 
