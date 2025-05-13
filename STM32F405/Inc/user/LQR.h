@@ -188,7 +188,7 @@ private:
 	bool legFlag = false;
 	float kp = 50;
 	float kd = 10;
-	float m = 1.2;
+	float m = 0.2;
 
 	
 };

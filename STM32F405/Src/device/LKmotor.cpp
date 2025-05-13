@@ -18,7 +18,7 @@ void LKMOTOR::LKmotorOntimer(uint8_t odata[8])//广播发送
 	uint16_t id = 2 * (ID - 1);
 	/* 限制输入的参数在定义的范围内 */
 
-	temp = T2C(setTorque);
+	temp = T2C(set_t);
 	temp = LIMIT_MIN_MAX(temp, C_MIN, C_MAX);
 	
 	ttorque = temp;
@@ -40,7 +40,7 @@ LKMOTOR& LKMOTOR::LKmotorDecode(uint8_t idata[][8])
 	deltaAngle = GetDelta(angle[now] ,angle[last], 32768);
 	torqueCurrent = current * 33 / 2048;
 	torque = torqueCurrent * KT;
-	setCurrent = setTorque / KT;
+	setCurrent = set_t / KT;
 
 }
 
@@ -68,9 +68,9 @@ float LKMOTOR::GetSpeed()
 	return curSpeed;
 }
 
-float LKMOTOR::SetTorque(float settorque)
+float LKMOTOR::SetTorque(float _settorque)
 {
-	setTorque = Limit(settorque, 7.5f, -7.5f);
+	return _settorque = Limit(_settorque, 7.5f, -7.5f);
 }
 
 int16_t LKMOTOR::T2C(float setTorque)

@@ -39,6 +39,8 @@ public:
 	void LKmotorTransmit();
 	float GetAngularVelocity();
 
+	float torque{}, set_t{};// 20250513lc:这里变量名与函数名重复 故更改
+
 	int16_t Setrange(const int32_t original, const int32_t range);
 	float GetTorque();
 	float GetSpeed();
@@ -88,7 +90,7 @@ private:
 	MOTOR_TYPE type;
 	FUCTION_MODE function;
 	/*int16_t torque{}, setTorque{};*/
-	float torque{}, setTorque{};
+	
 	int16_t curSpeed{}, setSpeed{};
 	float speed_real_{};
 	int32_t angle[2];

@@ -5,6 +5,7 @@
 #include "./Inc/user/LQR.h"
 #include "./Inc/user/control.h"
 #include "./Inc/user/QuaternionEKF.h"
+#include "./Inc/device/LKmotor.h"
 
 
 LQR::LQR(float K11, float K12, float K13, float K14, float K15, float K16,
@@ -103,7 +104,8 @@ void LQR::ModeUpdate(DMMOTOR* jointMotor[][2], LKMOTOR* chassisMotor[], IMU* _im
 
 	if (!legFlag && mode[now] != MODE::ENMERGE)
 	{
-		if (fabs(joint[left].present.phi) < 0.1 && fabs(joint[right].present.phi) < 0.1)
+		if (fabs(joint[left].present.phi) < 0.1 && fabs(joint[right].present.phi) < 0.1
+			&& fabs(joint[left].present.dphi) < 0.1 && fabs(joint[right].present.dphi) < 0.1&&fabs(joint[left].aim.x)>0.5)
 			//当前行速度不为0且双腿倾角均小于阈值时解锁
 		{
 			legFlag = true;
@@ -141,15 +143,15 @@ void LQR::ModeUpdate(DMMOTOR* jointMotor[][2], LKMOTOR* chassisMotor[], IMU* _im
 	else
 	{
 		
-		/*jointMotor[left][front]->SetTorque(joint[left].aimTorque.T4);
+		jointMotor[left][front]->SetTorque(joint[left].aimTorque.T4);
 		jointMotor[left][behind]->SetTorque(joint[left].aimTorque.T1);
 		jointMotor[right][front]->SetTorque(joint[right].aimTorque.T4);
-		jointMotor[right][behind]->SetTorque(joint[right].aimTorque.T1);*/
-	}
+		jointMotor[right][behind]->SetTorque(joint[right].aimTorque.T1);
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   	}
 
 
-	chassisMotor[left]->SetTorque(-joint[left].aimTorque.driverTorque.T_drive);
-	chassisMotor[right]->SetTorque(joint[right].aimTorque.driverTorque.T_drive);  
+	LK_can1_motor[0].set_t = (1.f)* chassisMotor[left]->SetTorque(joint[left].aimTorque.driverTorque.T_drive);
+	LK_can1_motor[1].set_t = (-1.f) * chassisMotor[right]->SetTorque(joint[right].aimTorque.driverTorque.T_drive);
 
 	if (legFlag)
 	{
@@ -387,7 +389,7 @@ LQR::TORQUE LQR::JOINT::ForwardKinetic(float thetaError, float dthetaError, floa
 		aimTorque.legTorque.Tp = (lqr.senstive1 * lqr.Torque_Calcute(thetaError, dthetaError, xError, dxError, \
 			phiError, dphiError, FUCTION_MODE::jointM));
 		aimTorque.F = -(-leg_kp * error.L0 + leg_kd * legposition.dL0 - leg_m * g * arm_cos_f32(present.theta[0]));
-		aimTorque.driverTorque.T_drive = -lqr.Torque_Calcute(thetaError, dthetaError, xError, dxError, \
+		aimTorque.driverTorque.T_drive = lqr.Torque_Calcute(thetaError, dthetaError, xError, dxError, \
 			phiError, dphiError, FUCTION_MODE::chassisM);
 
 		//aimTorque.F += aimTorque.rollTorque;//横滚角补偿
@@ -405,8 +407,8 @@ LQR::TORQUE LQR::JOINT::ForwardKinetic(float thetaError, float dthetaError, floa
 	{//right
 		aimTorque.legTorque.Tp = -(lqr.senstive1 * lqr.Torque_Calcute(thetaError, dthetaError, xError, dxError, \
 			phiError, dphiError, FUCTION_MODE::jointM));
-		aimTorque.F = (-leg_kp * error.L0 + leg_kd * legposition.dL0 - leg_m * g * arm_cos_f32(present.theta[0]));
-		aimTorque.driverTorque.T_drive = -lqr.Torque_Calcute(thetaError, dthetaError, xError, dxError, \
+		aimTorque.F = (-leg_kp * error.L0 + leg_kd * legposition.dL0 -leg_m * g * arm_cos_f32(present.theta[0]));
+		aimTorque.driverTorque.T_drive = lqr.Torque_Calcute(thetaError,  dthetaError, xError, dxError, \
 			phiError, dphiError, FUCTION_MODE::chassisM);
 
 		//aimTorque.F += aimTorque.rollTorque;//横滚角补偿
