@@ -142,16 +142,16 @@ void LQR::ModeUpdate(DMMOTOR* jointMotor[][2], LKMOTOR* chassisMotor[], IMU* _im
 	}
 	else
 	{
-		
+		/*
 		jointMotor[left][front]->SetTorque(joint[left].aimTorque.T4);
 		jointMotor[left][behind]->SetTorque(joint[left].aimTorque.T1);
 		jointMotor[right][front]->SetTorque(joint[right].aimTorque.T4);
-		jointMotor[right][behind]->SetTorque(joint[right].aimTorque.T1);
+		jointMotor[right][behind]->SetTorque(joint[right].aimTorque.T1);*/
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    	}
 
 
-	/*LK_can1_motor[0].set_t = (1.f)* chassisMotor[left]->SetTorque(joint[left].aimTorque.driverTorque.T_drive);
-	LK_can1_motor[1].set_t = (-1.f) * chassisMotor[right]->SetTorque(joint[right].aimTorque.driverTorque.T_drive);*/
+	LK_can1_motor[0].set_t = (1.f)* chassisMotor[left]->SetTorque(joint[left].aimTorque.driverTorque.T_drive);
+	LK_can1_motor[1].set_t = (-1.f) * chassisMotor[right]->SetTorque(joint[right].aimTorque.driverTorque.T_drive);
 
 	if (legFlag)
 	{

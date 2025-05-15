@@ -99,7 +99,7 @@ public:
 	};
 
 	pid rollPid = { 10.f,0.f,0.5f };
-	pid yawPid = { 0.0f,0.0f,0.f };
+	pid yawPid = { 3.0f,0.0f,0.0f };
 	float senstive1 = 1.f;
 	struct JOINT
 	{
