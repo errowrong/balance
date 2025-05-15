@@ -150,8 +150,8 @@ void LQR::ModeUpdate(DMMOTOR* jointMotor[][2], LKMOTOR* chassisMotor[], IMU* _im
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    	}
 
 
-	LK_can1_motor[0].set_t = (1.f)* chassisMotor[left]->SetTorque(joint[left].aimTorque.driverTorque.T_drive);
-	LK_can1_motor[1].set_t = (-1.f) * chassisMotor[right]->SetTorque(joint[right].aimTorque.driverTorque.T_drive);
+	/*LK_can1_motor[0].set_t = (1.f)* chassisMotor[left]->SetTorque(joint[left].aimTorque.driverTorque.T_drive);
+	LK_can1_motor[1].set_t = (-1.f) * chassisMotor[right]->SetTorque(joint[right].aimTorque.driverTorque.T_drive);*/
 
 	if (legFlag)
 	{
@@ -283,14 +283,16 @@ void LQR::JOINT::UpdateAim(float speed, float setL, float aimYaw, float aimPitch
 	gain = 0.25 * error.roll;// -lqr.rollPid.kd * imuChassis.GetAngularVelocityRoll() * PI / 180.f;
 	/*if (!leftOrRight)
 	{*/
-		aimTorque.driverTorque.turnT_drive = yawPid.kp * error.yaw -
-			yawPid.kd * imuChassis.GetAngularVelocityYaw() * PI / 180.f;
+		aimTorque.driverTorque.turnT_drive = lqr.yawPid.kp * error.yaw -
+			lqr.yawPid.kd * imuChassis.GetAngularVelocityYaw() * PI / 180.f;
 		aimTorque.rollTorque = -lqr.rollPid.kp * error.roll +
 			lqr.rollPid.kd * imuChassis.GetAngularVelocityRoll() * PI / 180.f;
 
+		
 		//aim.L0 = Ramp(setL + gain, aim.L0, temp);
 		aim.L0 = setL + 0.25 * error.roll;
-	/*}
+	
+		/*}
 	else
 	{
 		aimTorque.driverTorque.turnT_drive = yawPid.kp * error.yaw -
@@ -394,7 +396,8 @@ LQR::TORQUE LQR::JOINT::ForwardKinetic(float thetaError, float dthetaError, floa
 
 		//aimTorque.F += aimTorque.rollTorque;//ºá¹ö½Ç²¹³¥
 		//aimTorque.legTorque.Tp += aimTorque.legTorque.thetaTp;//Åü²æ²¹³¥
-		//aimTorque.driverTorque.T_drive += aimTorque.driverTorque.turnT_drive;//×ªÏò²¹³¥
+		// 
+		aimTorque.driverTorque.T_drive -= aimTorque.driverTorque.turnT_drive;//×ªÏò²¹³¥
 
 		aimTorque.T1 = (T2F.J[0][0] * aimTorque.legTorque.Tp + T2F.J[0][1] * aimTorque.F);
 		aimTorque.T4 = (T2F.J[1][0] * aimTorque.legTorque.Tp + T2F.J[1][1] * aimTorque.F);
@@ -413,7 +416,7 @@ LQR::TORQUE LQR::JOINT::ForwardKinetic(float thetaError, float dthetaError, floa
 
 		//aimTorque.F += aimTorque.rollTorque;//ºá¹ö½Ç²¹³¥
 		//aimTorque.legTorque.Tp += aimTorque.legTorque.thetaTp;//Åü²æ²¹³¥
-		//aimTorque.driverTorque.T_drive += aimTorque.driverTorque.turnT_drive;//×ªÏò²¹³¥
+		aimTorque.driverTorque.T_drive += aimTorque.driverTorque.turnT_drive;//×ªÏò²¹³¥
 
 		aimTorque.T1 = (T2F.J[0][0] * aimTorque.legTorque.Tp + T2F.J[0][1] * aimTorque.F);
 		aimTorque.T4 = (T2F.J[1][0] * aimTorque.legTorque.Tp + T2F.J[1][1] * aimTorque.F);

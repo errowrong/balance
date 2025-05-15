@@ -99,6 +99,7 @@ public:
 	};
 
 	pid rollPid = { 10.f,0.f,0.5f };
+	pid yawPid = { 0.0f,0.0f,0.f };
 	float senstive1 = 1.f;
 	struct JOINT
 	{
@@ -109,7 +110,7 @@ public:
 		TickType_t tick_present;
 		TickType_t tick_last;
 		float Time;
-		pid yawPid = { 35.0f,0.f,4.f };// , rollPid = { 1.f,0.f,0.f };//Ðý×ªpid
+	// , rollPid = { 1.f,0.f,0.f };//Ðý×ªpid
 
 		PID jumpPid[5] = { { 0.f, 0.f, 0.f},{ 0.f, 0.f, 0.f},{ 0.f, 0.f, 0.f},{ 0.f, 0.f, 0.f},{ 0.f, 0.f, 0.f} };
 
