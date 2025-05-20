@@ -42,10 +42,10 @@
 #define PI 3.1415926
 
 #define L1 0.15f
-#define L2 0.263f
-#define L3 0.263f
+#define L2 0.288f
+#define L3 0.288f
 #define L4 0.15f
-#define L5 0.12f
+#define L5 0.150f
 #define WIDENTH 0.38f
 
 

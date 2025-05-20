@@ -187,9 +187,9 @@ private:
 
 	PID thetaPid = { 10.f,0.f,20.f };
 	bool legFlag = false;
-	float kp = 50;
-	float kd = 10;
-	float m = 0.2;
+	float kp = 45;
+	float kd = 5;
+	float m = 0.0f;
 
 	
 };

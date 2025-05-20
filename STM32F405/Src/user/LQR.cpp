@@ -104,8 +104,8 @@ void LQR::ModeUpdate(DMMOTOR* jointMotor[][2], LKMOTOR* chassisMotor[], IMU* _im
 
 	if (!legFlag && mode[now] != MODE::ENMERGE)
 	{
-		if (fabs(joint[left].present.phi) < 0.1 && fabs(joint[right].present.phi) < 0.1
-			&& fabs(joint[left].present.dphi) < 0.1 && fabs(joint[right].present.dphi) < 0.1&&fabs(joint[left].aim.x)>0.5)
+		if (fabs(joint[left].present.phi) < 0.05 && fabs(joint[right].present.phi) < 0.05
+			&& fabs(joint[left].present.dphi) < 0.05 && fabs(joint[right].present.dphi) < 0.05)
 			//当前行速度不为0且双腿倾角均小于阈值时解锁
 		{
 			legFlag = true;
@@ -142,16 +142,16 @@ void LQR::ModeUpdate(DMMOTOR* jointMotor[][2], LKMOTOR* chassisMotor[], IMU* _im
 	}
 	else
 	{
-		/*
-		jointMotor[left][front]->SetTorque(joint[left].aimTorque.T4);
-		jointMotor[left][behind]->SetTorque(joint[left].aimTorque.T1);
-		jointMotor[right][front]->SetTorque(joint[right].aimTorque.T4);
-		jointMotor[right][behind]->SetTorque(joint[right].aimTorque.T1);*/
+		
+		jointMotor[left][front]->SetTorque(0.05*joint[left].aimTorque.T4);
+		jointMotor[left][behind]->SetTorque(0.05*joint[left].aimTorque.T1);
+		jointMotor[right][front]->SetTorque(0.05*joint[right].aimTorque.T4);
+		jointMotor[right][behind]->SetTorque(0.05*joint[right].aimTorque.T1);
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    	}
 
 
-	LK_can1_motor[0].set_t = (1.f)* chassisMotor[left]->SetTorque(joint[left].aimTorque.driverTorque.T_drive);
-	LK_can1_motor[1].set_t = (-1.f) * chassisMotor[right]->SetTorque(joint[right].aimTorque.driverTorque.T_drive);
+	/*LK_can1_motor[0].set_t = (1.f)* chassisMotor[left]->SetTorque(joint[left].aimTorque.driverTorque.T_drive);
+	LK_can1_motor[1].set_t = (-1.f) * chassisMotor[right]->SetTorque(joint[right].aimTorque.driverTorque.T_drive);*/
 
 	if (legFlag)
 	{
@@ -217,6 +217,7 @@ void LQR::JOINT::UpdateState(float roll, float yaw, float pitch, float m_dphi1, 
 	tick_present = xTaskGetTickCount();
 	Time = (tick_present - tick_last) * portTICK_PERIOD_MS /1000.f;
 	
+
 	present.theta[last] = present.theta[now];
 
 	/*根据实物更新*/
@@ -231,8 +232,16 @@ void LQR::JOINT::UpdateState(float roll, float yaw, float pitch, float m_dphi1, 
 	present.dphi = m_dphi;
 
 	LegSolution(legposition.phi1, legposition.phi4, legposition.dphi1, legposition.dphi4);
-	legposition.d2L0 = ((legposition.dL0 - dL0Last) / (Time));
+	//legposition.d2L0 = (legposition.dL0 - dL0Last) / (0.001f+0.008f)+ legposition.d2L0*0.008f/ (0.001f+0.008f);
+	const float alpha = 0.001f;  // 原小常数
+	const float beta = 0.008f;    // 原系数
+	const float denominator = alpha + beta;
 
+	// 使用更大的分母值（如0.1f），保持比例关系
+	const float new_denominator = 0.1f;
+	legposition.d2L0 = (roundf(legposition.dL0 * 100.0f) / 100.0f - roundf(dL0Last * 100.0f) / 100.0f) / new_denominator
+		+ legposition.d2L0 * (beta / denominator) * (denominator / new_denominator);
+	 
 	/*................................................*/
 	present.dx = (m_dx+mo_dx)/2;
 
@@ -285,12 +294,12 @@ void LQR::JOINT::UpdateAim(float speed, float setL, float aimYaw, float aimPitch
 	{*/
 		aimTorque.driverTorque.turnT_drive = lqr.yawPid.kp * error.yaw -
 			lqr.yawPid.kd * imuChassis.GetAngularVelocityYaw() * PI / 180.f;
-		aimTorque.rollTorque = -lqr.rollPid.kp * error.roll +
-			lqr.rollPid.kd * imuChassis.GetAngularVelocityRoll() * PI / 180.f;
+		/*aimTorque.rollTorque = -lqr.rollPid.kp * error.roll +
+			lqr.rollPid.kd * imuChassis.GetAngularVelocityRoll() * PI / 180.f;*/
 
 		
 		//aim.L0 = Ramp(setL + gain, aim.L0, temp);
-		aim.L0 = setL + 0.25 * error.roll;
+		aim.L0 = setL;// + 0.25 * error.roll;
 	
 		/*}
 	else
@@ -388,7 +397,7 @@ LQR::TORQUE LQR::JOINT::ForwardKinetic(float thetaError, float dthetaError, floa
 	//{
 	if (!leftOrRight)
 	{//left
-		aimTorque.legTorque.Tp = (lqr.senstive1 * lqr.Torque_Calcute(thetaError, dthetaError, xError, dxError, \
+		aimTorque.legTorque.Tp = (lqr.Torque_Calcute(thetaError, dthetaError, xError, dxError, \
 			phiError, dphiError, FUCTION_MODE::jointM));
 		aimTorque.F = -(-leg_kp * error.L0 + leg_kd * legposition.dL0 - leg_m * g * arm_cos_f32(present.theta[0]));
 		aimTorque.driverTorque.T_drive = lqr.Torque_Calcute(thetaError, dthetaError, xError, dxError, \
@@ -408,9 +417,9 @@ LQR::TORQUE LQR::JOINT::ForwardKinetic(float thetaError, float dthetaError, floa
 	}
 	else
 	{//right
-		aimTorque.legTorque.Tp = -(lqr.senstive1 * lqr.Torque_Calcute(thetaError, dthetaError, xError, dxError, \
+		aimTorque.legTorque.Tp = -(lqr.Torque_Calcute(thetaError, dthetaError, xError, dxError, \
 			phiError, dphiError, FUCTION_MODE::jointM));
-		aimTorque.F = (-leg_kp * error.L0 + leg_kd * legposition.dL0 -leg_m * g * arm_cos_f32(present.theta[0]));
+		aimTorque.F = (-leg_kp * error.L0 + leg_kd * legposition.dL0 - leg_m * g); //* arm_cos_f32(present.theta[0]));
 		aimTorque.driverTorque.T_drive = lqr.Torque_Calcute(thetaError,  dthetaError, xError, dxError, \
 			phiError, dphiError, FUCTION_MODE::chassisM);
 
@@ -458,8 +467,8 @@ LQR::TORQUE LQR::JOINT::InverseKinetic()
 
 void LQR::JOINT::LegSolution(float phi1, float phi4, float dphi1, float dphi4)
 {
-	float s_phi1 = sinf(phi1), c_phi1 = cosf(phi1);
-	float s_phi4 = sinf(phi4), c_phi4 = cosf(phi4);
+	float s_phi1 = arm_sin_f32(phi1), c_phi1 = arm_cos_f32(phi1);
+	float s_phi4 = arm_sin_f32(phi4), c_phi4 = arm_cos_f32(phi4);
 
 	float a1 = L1 * s_phi1 - L4 * s_phi4;
 	float omega1 = a1 * a1;

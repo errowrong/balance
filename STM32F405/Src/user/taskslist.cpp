@@ -166,7 +166,7 @@ void ControlTask(void* pvParameters)
 		{
 			//nuc.Encode(imuPantile.GetAnglePitch(), imuPantile.GetAngleYaw(), imuPantile.GetAngleRoll());
 			rc.Update();
-			ctrl.Update();
+			//ctrl.Update();
 		};
 		ctrl.Update();
 

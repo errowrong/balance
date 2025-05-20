@@ -143,7 +143,7 @@ void RC::OnRC()
 
 		ctrl.SetMoveSpd(rc.ch[1] * powerRcSpd / 660.f);
 		ctrl.SetYaw(-rc.ch[0] * para.turnSpd / 660.f);
-		ctrl.SetL0(rc.ch[2] * para.L0Spd / 660.f);
+		ctrl.SetL0(rc.ch[3] * para.L0Spd / 660.f);
 		//ctrl.SetPantile(rc.ch[2] * para.yawSpd, -rc.ch[3] * para.pitchSpd);*/
 		ctrl.PowerUpdata(&powerRcSpd);
 		
