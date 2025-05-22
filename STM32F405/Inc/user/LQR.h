@@ -189,7 +189,7 @@ private:
 	bool legFlag = false;
 	float kp = 45;
 	float kd = 5;
-	float m = 0.0f;
+	float m = -0.2f;
 
 	
 };

@@ -58,7 +58,7 @@ void LQR::SpeedKalmanFilter()
 
 void LQR::ModeUpdate(DMMOTOR* jointMotor[][2], LKMOTOR* chassisMotor[], IMU* _imuChassis, float* aimL0, float moveSpd, float aimYaw, float aimPitch)
 {
-	
+
 	UpdateSensor(jointMotor, *chassisMotor, _imuChassis);
 	AccelerationSolution(imu.roll, imu.pitch, imu.yaw);  //离地检测
 
@@ -74,16 +74,16 @@ void LQR::ModeUpdate(DMMOTOR* jointMotor[][2], LKMOTOR* chassisMotor[], IMU* _im
 	dx[right] = chassisMotor[right]->GetAngularVelocity() * wheelRadii;
 
 	float dphi = imuChassis.GetAngularVelocityPitch() * PI / 180.f;
-	
+
 	SpeedCalc(); //机体速度解算
 	SpeedKalmanFilter();
 	//bodyVelocity = AccelerationSolution(imu.roll, imu.pitch, imu.yaw);
-	
+
 	//if (initialFlag)
 	//{
 	//	//initialFlag = true;
 	//speedKalmanFilter.TaskUpdate();
-	
+
 	joint[left].UpdateState(imu.roll, imu.yaw, imu.pitch, dphi1[left], dphi4[left], bodyVelocityHat, dx[left], dphi);//速度融合
 	joint[right].UpdateState(imu.roll, imu.yaw, imu.pitch, dphi1[right], dphi4[right], bodyVelocityHat, dx[right], dphi);
 	//}
@@ -102,14 +102,20 @@ void LQR::ModeUpdate(DMMOTOR* jointMotor[][2], LKMOTOR* chassisMotor[], IMU* _im
 	joint[left].UpdateAim(moveSpd, *aimL0, aimYaw, aimPitch);
 	joint[right].UpdateAim(moveSpd, *aimL0, aimYaw, aimPitch);
 
-	if (!legFlag && mode[now] != MODE::ENMERGE)
+	if (mode[now] != MODE::ENMERGE)//(!legFlag && mode[now] != MODE::ENMERGE)
 	{
-		if (fabs(joint[left].present.phi) < 0.05 && fabs(joint[right].present.phi) < 0.05
+		if (fabs(joint[left].present.phi) < 0.1 && fabs(joint[right].present.phi) < 0.1
 			&& fabs(joint[left].present.dphi) < 0.05 && fabs(joint[right].present.dphi) < 0.05)
 			//当前行速度不为0且双腿倾角均小于阈值时解锁
 		{
 			legFlag = true;
 		}
+		if(fabs(joint[left].present.phi) > 0.15 && fabs(joint[right].present.phi) > 0.15
+			&& fabs(joint[left].present.dphi) > 0.07f && fabs(joint[right].present.dphi) >0.07f)
+		{
+			legFlag = false;
+		}
+
 	}
 	if (mode[now] == UNFORCE)
 	{
@@ -142,16 +148,17 @@ void LQR::ModeUpdate(DMMOTOR* jointMotor[][2], LKMOTOR* chassisMotor[], IMU* _im
 	}
 	else
 	{
-		
-		jointMotor[left][front]->SetTorque(0.05*joint[left].aimTorque.T4);
-		jointMotor[left][behind]->SetTorque(0.05*joint[left].aimTorque.T1);
-		jointMotor[right][front]->SetTorque(0.05*joint[right].aimTorque.T4);
-		jointMotor[right][behind]->SetTorque(0.05*joint[right].aimTorque.T1);
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   	}
+
+		jointMotor[left][front]->SetTorque(joint[left].aimTorque.T4); //1号 正
+		jointMotor[left][behind]->SetTorque( -joint[left].aimTorque.T1);  //2负
+		jointMotor[right][front]->SetTorque(-joint[right].aimTorque.T4);  //3号 负
+		jointMotor[right][behind]->SetTorque(joint[right].aimTorque.T1); // 4正
+        
+	}
 
 
-	/*LK_can1_motor[0].set_t = (1.f)* chassisMotor[left]->SetTorque(joint[left].aimTorque.driverTorque.T_drive);
-	LK_can1_motor[1].set_t = (-1.f) * chassisMotor[right]->SetTorque(joint[right].aimTorque.driverTorque.T_drive);*/
+	LK_can1_motor[0].set_t = (1.f)* chassisMotor[left]->SetTorque(joint[left].aimTorque.driverTorque.T_drive);
+	LK_can1_motor[1].set_t = (-1.f) * chassisMotor[right]->SetTorque(joint[right].aimTorque.driverTorque.T_drive);
 
 	if (legFlag)
 	{
@@ -417,9 +424,9 @@ LQR::TORQUE LQR::JOINT::ForwardKinetic(float thetaError, float dthetaError, floa
 	}
 	else
 	{//right
-		aimTorque.legTorque.Tp = -(lqr.Torque_Calcute(thetaError, dthetaError, xError, dxError, \
+		aimTorque.legTorque.Tp = (lqr.Torque_Calcute(thetaError, dthetaError, xError, dxError, \
 			phiError, dphiError, FUCTION_MODE::jointM));
-		aimTorque.F = (-leg_kp * error.L0 + leg_kd * legposition.dL0 - leg_m * g); //* arm_cos_f32(present.theta[0]));
+		aimTorque.F = -(-leg_kp * error.L0 + leg_kd * legposition.dL0 - leg_m * g * arm_cos_f32(present.theta[0])); //* arm_cos_f32(present.theta[0]));
 		aimTorque.driverTorque.T_drive = lqr.Torque_Calcute(thetaError,  dthetaError, xError, dxError, \
 			phiError, dphiError, FUCTION_MODE::chassisM);
 
